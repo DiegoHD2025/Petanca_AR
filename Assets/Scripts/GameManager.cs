@@ -5,54 +5,54 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject boulePrefab;
+    [Header("Prefabs")]
     public GameObject bolichePrefab;
+    public GameObject boulePrefab;
+
+    [Header("UI")]
     public TextMeshProUGUI distanceText;
+    public Button clearButton;
 
     private GameObject boliche;
     private List<GameObject> boules = new List<GameObject>();
 
     void Start()
     {
-        SpawnBoliche(Vector3.zero);
+        clearButton.onClick.AddListener(ClearAll);
     }
 
     public void SpawnBoliche(Vector3 position)
     {
-        if (boliche == null)
-            boliche = Instantiate(bolichePrefab, position, Quaternion.identity);
+        if (boliche != null) Destroy(boliche);
+        boliche = Instantiate(bolichePrefab, position, Quaternion.identity);
     }
 
     public void SpawnBoule(Vector3 position)
     {
-        GameObject b = Instantiate(boulePrefab, position, Quaternion.identity);
-        boules.Add(b);
+        GameObject newBoule = Instantiate(boulePrefab, position, Quaternion.identity);
+        boules.Add(newBoule);
     }
 
     void Update()
     {
-        UpdateClosestDistance();
-    }
-
-    void UpdateClosestDistance()
-    {
         if (boliche == null || boules.Count == 0) return;
 
-        float closest = float.MaxValue;
-        foreach (var b in boules)
+        float minDistance = float.MaxValue;
+
+        foreach (GameObject boule in boules)
         {
-            float d = Vector3.Distance(b.transform.position, boliche.transform.position);
-            if (d < closest)
-                closest = d;
+            float dist = Vector3.Distance(boule.transform.position, boliche.transform.position);
+            if (dist < minDistance) minDistance = dist;
         }
 
-        distanceText.text = $"Closest boule: {closest:F2} m";
+        distanceText.text = $"Closest boule: {minDistance:F2} m";
     }
 
-    public void ClearBoules()
+    void ClearAll()
     {
-        foreach (var b in boules)
-            Destroy(b);
+        if (boliche != null) Destroy(boliche);
+        foreach (var boule in boules) Destroy(boule);
         boules.Clear();
+        distanceText.text = "Cleared!";
     }
 }

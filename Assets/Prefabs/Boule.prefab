@@ -101,7 +101,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -146,4 +146,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbdb58a23bd4c914199988ed13f10f2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  throwForce: 10
+  forceMultiplier: 0.1
+  upwardForceFactor: 2

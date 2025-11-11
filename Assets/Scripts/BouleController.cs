@@ -2,12 +2,15 @@ using UnityEngine;
 
 public class BouleController : MonoBehaviour
 {
-    private Vector3 startPos;
-    private Vector3 endPos;
+    private Vector2 startPos;
+    private Vector2 endPos;
     private bool isDragging = false;
     private Rigidbody rb;
     private bool hasThrown = false;
-    public float forceMultiplier = 0.02f;
+
+    [Header("Tuning")]
+    public float forceMultiplier = 0.03f;
+    public float upwardForceFactor = 0.5f;
 
     void Start()
     {
@@ -17,15 +20,16 @@ public class BouleController : MonoBehaviour
 
     void Update()
     {
+        if (hasThrown) return;
+
 #if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 mousePos = Input.mousePosition;
-            Ray ray = Camera.main.ScreenPointToRay(mousePos);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit) && hit.transform == transform)
             {
                 isDragging = true;
-                startPos = mousePos;
+                startPos = Input.mousePosition;
             }
         }
 
@@ -38,6 +42,7 @@ public class BouleController : MonoBehaviour
         if (Input.touchCount == 1)
         {
             Touch touch = Input.GetTouch(0);
+
             if (touch.phase == TouchPhase.Began)
             {
                 Ray ray = Camera.main.ScreenPointToRay(touch.position);
@@ -58,11 +63,19 @@ public class BouleController : MonoBehaviour
 
     void ThrowBoule()
     {
-        Vector3 dir = (endPos - startPos);
-        Vector3 throwDir = new Vector3(dir.x, dir.magnitude * 0.1f, dir.y).normalized;
-
         rb.isKinematic = false;
-        rb.AddForce(throwDir * dir.magnitude * forceMultiplier, ForceMode.Impulse);
+
+        Vector2 dragVector = endPos - startPos;
+
+        // Dirección 3D en el espacio de la cámara
+        Vector3 throwDirection =
+            Camera.main.transform.forward * Mathf.Abs(dragVector.y) +
+            Camera.main.transform.right * dragVector.x +
+            Camera.main.transform.up * (dragVector.magnitude * upwardForceFactor);
+
+        throwDirection.Normalize();
+
+        rb.AddForce(throwDirection * dragVector.magnitude * forceMultiplier, ForceMode.Impulse);
 
         hasThrown = true;
         isDragging = false;

@@ -7,14 +7,13 @@ public class TapToPlace : MonoBehaviour
 {
     public GameManager gameManager;
     public ARRaycastManager raycastManager;
-    private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
+    private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
     private bool bolichePlaced = false;
 
     void Update()
     {
 #if UNITY_EDITOR
-        // Simulación en editor con clic de ratón
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -24,7 +23,6 @@ public class TapToPlace : MonoBehaviour
             }
         }
 #else
-        // En build real con pantalla táctil
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
