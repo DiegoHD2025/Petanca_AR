@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        clearButton.onClick.AddListener(ClearAll);
+        clearButton.onClick.AddListener(ClearBoules);
     }
 
     public void SpawnBoliche(Vector3 position)
@@ -48,11 +48,19 @@ public class GameManager : MonoBehaviour
         distanceText.text = $"Closest boule: {minDistance:F2} m";
     }
 
-    void ClearAll()
+    void ClearBoules()
     {
-        if (boliche != null) Destroy(boliche);
-        foreach (var boule in boules) Destroy(boule);
+        // Solo eliminar las boules lanzadas
+        foreach (var boule in boules)
+        {
+            if (boule != null)
+                Destroy(boule);
+        }
+
         boules.Clear();
-        distanceText.text = "Cleared!";
+
+        // Mantiene el boliche en escena
+        distanceText.text = "Boules cleared!";
     }
+
 }

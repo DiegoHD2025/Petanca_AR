@@ -146,5 +146,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbdb58a23bd4c914199988ed13f10f2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forceMultiplier: 0.1
-  upwardForceFactor: 2
+  reticle: {fileID: 5050412500060129047, guid: 30f317f8d5be24e4bae80be8dc7c4422, type: 3}
+  forceMultiplier: 0.05
+  upwardForceFactor: 0.6

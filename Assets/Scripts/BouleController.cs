@@ -6,7 +6,7 @@ public class BouleController : MonoBehaviour
     private Vector2 endPos;
     private bool isDragging = false;
     private Rigidbody rb;
-    private bool hasThrown = false;
+    public Transform reticle; // referencia al blanco en el mundo AR
 
     [Header("Tuning")]
     public float forceMultiplier = 0.03f;
@@ -20,7 +20,8 @@ public class BouleController : MonoBehaviour
 
     void Update()
     {
-        if (hasThrown) return;
+        // Si está volando o muy rápido, no permitir otro toque
+        if (rb.velocity.magnitude > 0.1f) return;
 
 #if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
@@ -67,17 +68,31 @@ public class BouleController : MonoBehaviour
 
         Vector2 dragVector = endPos - startPos;
 
-        // Dirección 3D en el espacio de la cámara
-        Vector3 throwDirection =
-            Camera.main.transform.forward * Mathf.Abs(dragVector.y) +
-            Camera.main.transform.right * dragVector.x +
-            Camera.main.transform.up * (dragVector.magnitude * upwardForceFactor);
+        // Si tenemos un blanco (retícula), lanzamos hacia él
+        Vector3 throwDirection;
+        if (reticle != null)
+        {
+            // dirección desde la boule hacia la retícula
+            throwDirection = (reticle.position - transform.position).normalized;
 
-        throwDirection.Normalize();
+            // añade algo de fuerza vertical proporcional al arrastre
+            throwDirection += Vector3.up * (dragVector.magnitude * upwardForceFactor * 0.01f);
+            throwDirection.Normalize();
+        }
+        else
+        {
+            // Si no hay retícula, lanza hacia adelante como antes
+            throwDirection =
+                Camera.main.transform.forward * Mathf.Abs(dragVector.y) +
+                Camera.main.transform.right * dragVector.x +
+                Camera.main.transform.up * (dragVector.magnitude * upwardForceFactor);
+
+            throwDirection.Normalize();
+        }
 
         rb.AddForce(throwDirection * dragVector.magnitude * forceMultiplier, ForceMode.Impulse);
 
-        hasThrown = true;
         isDragging = false;
     }
+
 }
