@@ -14,32 +14,52 @@ public class TapToPlace : MonoBehaviour
     void Update()
     {
 #if UNITY_EDITOR
+        // --- SIMULACIÓN EN EL EDITOR ---
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
+                // Si tocaste una Boule existente, no crear otra
+                if (hit.collider.CompareTag("Boule"))
+                    return;
+
                 HandlePlacement(hit.point);
             }
         }
 #else
-        if (Input.touchCount > 0)
+    // --- EJECUCIÓN EN DISPOSITIVO MÓVIL ---
+    if (Input.touchCount > 0)
+    {
+        Touch touch = Input.GetTouch(0);
+        if (touch.phase == TouchPhase.Began)
         {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Ended)
+            Ray ray = Camera.main.ScreenPointToRay(touch.position);
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                if (raycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
+                // Si tocaste una Boule existente, no crear otra
+                if (hit.collider.CompareTag("Boule"))
                 {
-                    Pose hitPose = hits[0].pose;
-                    HandlePlacement(hitPose.position);
+                    var boule = hit.collider.GetComponent<BouleController>();
+                    if (boule != null)
+                        return; // Evita crear nuevas
                 }
             }
+
+            // Si no tocaste una Boule, buscar plano AR
+            if (raycastManager.Raycast(touch.position, hits, TrackableType.Planes))
+            {
+                Pose hitPose = hits[0].pose;
+                HandlePlacement(hitPose.position);
+            }
         }
+    }
 #endif
     }
 
     void HandlePlacement(Vector3 position)
     {
+        // Coloca primero el boliche, luego las pelotas
         if (!bolichePlaced)
         {
             gameManager.SpawnBoliche(position + Vector3.up * 0.05f);
