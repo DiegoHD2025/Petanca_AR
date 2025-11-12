@@ -20,8 +20,12 @@ public class BouleController : MonoBehaviour
 
     void Update()
     {
-        // Si está volando o muy rápido, no permitir otro toque
-        if (rb.velocity.magnitude > 0.1f) return;
+        if (rb.velocity.magnitude > 0.3f) return;
+
+        if (!rb.isKinematic && rb.velocity.magnitude < 0.05f)
+        {
+            rb.isKinematic = true;
+        }
 
 #if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
